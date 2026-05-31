@@ -48,6 +48,17 @@ const routes: RouteRecordRaw[] = [
       titleKey: 'common.login'
     }
   },
+  // SSO 中继页：子产品（如生图工作台）跳到这里，用当前登录态换一次性 code 后跳回。
+  // requiresAuth=true：未登录会先被守卫导向 /login?redirect=/sso?...，登录后自动回到本页。
+  {
+    path: '/sso',
+    name: 'SsoRelay',
+    component: () => import('@/views/auth/SsoRelayView.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'SSO'
+    }
+  },
   {
     path: '/register',
     name: 'Register',

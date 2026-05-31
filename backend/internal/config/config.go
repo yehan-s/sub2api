@@ -93,6 +93,15 @@ type Config struct {
 	Gemini                  GeminiConfig                  `mapstructure:"gemini"`
 	Update                  UpdateConfig                  `mapstructure:"update"`
 	Idempotency             IdempotencyConfig             `mapstructure:"idempotency"`
+	SSO                     SSOConfig                     `mapstructure:"sso"`
+}
+
+// SSOConfig 子产品单点登录配置（如画境工坊生图站换临时 key）。
+type SSOConfig struct {
+	// SharedSecret 子产品后端调用 /sso/token 的共享密钥；为空则 SSO 关闭。
+	SharedSecret string `mapstructure:"shared_secret"`
+	// AllowedRedirects 允许的回跳地址白名单，逗号分隔，前缀匹配。
+	AllowedRedirects string `mapstructure:"allowed_redirects"`
 }
 
 type LogConfig struct {
@@ -1494,6 +1503,11 @@ func load(allowMissingJWTSecret bool) (*Config, error) {
 }
 
 func setDefaults() {
+	// SSO 单点登录（默认关闭：shared_secret 为空即不启用）
+	// 环境变量：SSO_SHARED_SECRET / SSO_ALLOWED_REDIRECTS
+	viper.SetDefault("sso.shared_secret", "")
+	viper.SetDefault("sso.allowed_redirects", "")
+
 	viper.SetDefault("run_mode", RunModeStandard)
 
 	// Server
