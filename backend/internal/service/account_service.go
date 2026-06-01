@@ -33,6 +33,10 @@ type AccountRepository interface {
 	// ListCRSAccountIDs returns a map of crs_account_id -> local account ID
 	// for all accounts that have been synced from CRS.
 	ListCRSAccountIDs(ctx context.Context) (map[string]int64, error)
+
+	// ListSyncedSourceIDs 返回本地所有 source=synced 账号的 sync_source_id 集合，
+	// 用于「从生产同步账号」的幂等去重（生产有、本地已同步过的不再重复导入）。
+	ListSyncedSourceIDs(ctx context.Context) (map[int64]bool, error)
 	Update(ctx context.Context, account *Account) error
 	Delete(ctx context.Context, id int64) error
 
@@ -74,6 +78,12 @@ type AccountRepository interface {
 	IncrementQuotaUsed(ctx context.Context, id int64, amount float64) error
 	// ResetQuotaUsed 重置 API Key 账号所有维度的配额用量为 0
 	ResetQuotaUsed(ctx context.Context, id int64) error
+
+	// FindGroupByName 按名称查找未软删除的分组。不存在时返回 (nil, nil)。
+	FindGroupByName(ctx context.Context, name string) (*Group, error)
+	// FindProxyByIdentity 按连接身份元组（protocol/host/port/username）查找未软删除的代理。
+	// 多命中时按 created_at DESC 取最新；不存在时返回 (nil, nil)。
+	FindProxyByIdentity(ctx context.Context, protocol, host string, port int, username string) (*Proxy, error)
 }
 
 // AccountBulkUpdate describes the fields that can be updated in a bulk operation.

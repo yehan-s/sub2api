@@ -58,6 +58,10 @@ func (s *accountRepoStub) FindByExtraField(ctx context.Context, key string, valu
 	panic("unexpected FindByExtraField call")
 }
 
+func (s *accountRepoStub) ListSyncedSourceIDs(ctx context.Context) (map[int64]bool, error) {
+	return nil, nil
+}
+
 func (s *accountRepoStub) ListCRSAccountIDs(ctx context.Context) (map[string]int64, error) {
 	panic("unexpected ListCRSAccountIDs call")
 }
@@ -205,6 +209,14 @@ func (s *accountRepoStub) IncrementQuotaUsed(ctx context.Context, id int64, amou
 
 func (s *accountRepoStub) ResetQuotaUsed(ctx context.Context, id int64) error {
 	return nil
+}
+
+func (s *accountRepoStub) FindGroupByName(ctx context.Context, name string) (*Group, error) {
+	return nil, nil
+}
+
+func (s *accountRepoStub) FindProxyByIdentity(ctx context.Context, protocol, host string, port int, username string) (*Proxy, error) {
+	return nil, nil
 }
 
 // TestAccountService_Delete_NotFound 测试删除不存在的账号时返回正确的错误。

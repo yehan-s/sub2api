@@ -241,6 +241,47 @@ func (_u *AccountUpdate) AddRateMultiplier(v float64) *AccountUpdate {
 	return _u
 }
 
+// SetSource sets the "source" field.
+func (_u *AccountUpdate) SetSource(v string) *AccountUpdate {
+	_u.mutation.SetSource(v)
+	return _u
+}
+
+// SetNillableSource sets the "source" field if the given value is not nil.
+func (_u *AccountUpdate) SetNillableSource(v *string) *AccountUpdate {
+	if v != nil {
+		_u.SetSource(*v)
+	}
+	return _u
+}
+
+// SetSyncSourceID sets the "sync_source_id" field.
+func (_u *AccountUpdate) SetSyncSourceID(v int64) *AccountUpdate {
+	_u.mutation.ResetSyncSourceID()
+	_u.mutation.SetSyncSourceID(v)
+	return _u
+}
+
+// SetNillableSyncSourceID sets the "sync_source_id" field if the given value is not nil.
+func (_u *AccountUpdate) SetNillableSyncSourceID(v *int64) *AccountUpdate {
+	if v != nil {
+		_u.SetSyncSourceID(*v)
+	}
+	return _u
+}
+
+// AddSyncSourceID adds value to the "sync_source_id" field.
+func (_u *AccountUpdate) AddSyncSourceID(v int64) *AccountUpdate {
+	_u.mutation.AddSyncSourceID(v)
+	return _u
+}
+
+// ClearSyncSourceID clears the value of the "sync_source_id" field.
+func (_u *AccountUpdate) ClearSyncSourceID() *AccountUpdate {
+	_u.mutation.ClearSyncSourceID()
+	return _u
+}
+
 // SetStatus sets the "status" field.
 func (_u *AccountUpdate) SetStatus(v string) *AccountUpdate {
 	_u.mutation.SetStatus(v)
@@ -650,6 +691,11 @@ func (_u *AccountUpdate) check() error {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Account.type": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Source(); ok {
+		if err := account.SourceValidator(v); err != nil {
+			return &ValidationError{Name: "source", err: fmt.Errorf(`ent: validator failed for field "Account.source": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Status(); ok {
 		if err := account.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Account.status": %w`, err)}
@@ -731,6 +777,18 @@ func (_u *AccountUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.AddedRateMultiplier(); ok {
 		_spec.AddField(account.FieldRateMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.Source(); ok {
+		_spec.SetField(account.FieldSource, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SyncSourceID(); ok {
+		_spec.SetField(account.FieldSyncSourceID, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedSyncSourceID(); ok {
+		_spec.AddField(account.FieldSyncSourceID, field.TypeInt64, value)
+	}
+	if _u.mutation.SyncSourceIDCleared() {
+		_spec.ClearField(account.FieldSyncSourceID, field.TypeInt64)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(account.FieldStatus, field.TypeString, value)
@@ -1168,6 +1226,47 @@ func (_u *AccountUpdateOne) AddRateMultiplier(v float64) *AccountUpdateOne {
 	return _u
 }
 
+// SetSource sets the "source" field.
+func (_u *AccountUpdateOne) SetSource(v string) *AccountUpdateOne {
+	_u.mutation.SetSource(v)
+	return _u
+}
+
+// SetNillableSource sets the "source" field if the given value is not nil.
+func (_u *AccountUpdateOne) SetNillableSource(v *string) *AccountUpdateOne {
+	if v != nil {
+		_u.SetSource(*v)
+	}
+	return _u
+}
+
+// SetSyncSourceID sets the "sync_source_id" field.
+func (_u *AccountUpdateOne) SetSyncSourceID(v int64) *AccountUpdateOne {
+	_u.mutation.ResetSyncSourceID()
+	_u.mutation.SetSyncSourceID(v)
+	return _u
+}
+
+// SetNillableSyncSourceID sets the "sync_source_id" field if the given value is not nil.
+func (_u *AccountUpdateOne) SetNillableSyncSourceID(v *int64) *AccountUpdateOne {
+	if v != nil {
+		_u.SetSyncSourceID(*v)
+	}
+	return _u
+}
+
+// AddSyncSourceID adds value to the "sync_source_id" field.
+func (_u *AccountUpdateOne) AddSyncSourceID(v int64) *AccountUpdateOne {
+	_u.mutation.AddSyncSourceID(v)
+	return _u
+}
+
+// ClearSyncSourceID clears the value of the "sync_source_id" field.
+func (_u *AccountUpdateOne) ClearSyncSourceID() *AccountUpdateOne {
+	_u.mutation.ClearSyncSourceID()
+	return _u
+}
+
 // SetStatus sets the "status" field.
 func (_u *AccountUpdateOne) SetStatus(v string) *AccountUpdateOne {
 	_u.mutation.SetStatus(v)
@@ -1590,6 +1689,11 @@ func (_u *AccountUpdateOne) check() error {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Account.type": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Source(); ok {
+		if err := account.SourceValidator(v); err != nil {
+			return &ValidationError{Name: "source", err: fmt.Errorf(`ent: validator failed for field "Account.source": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Status(); ok {
 		if err := account.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Account.status": %w`, err)}
@@ -1688,6 +1792,18 @@ func (_u *AccountUpdateOne) sqlSave(ctx context.Context) (_node *Account, err er
 	}
 	if value, ok := _u.mutation.AddedRateMultiplier(); ok {
 		_spec.AddField(account.FieldRateMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.Source(); ok {
+		_spec.SetField(account.FieldSource, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SyncSourceID(); ok {
+		_spec.SetField(account.FieldSyncSourceID, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedSyncSourceID(); ok {
+		_spec.AddField(account.FieldSyncSourceID, field.TypeInt64, value)
+	}
+	if _u.mutation.SyncSourceIDCleared() {
+		_spec.ClearField(account.FieldSyncSourceID, field.TypeInt64)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(account.FieldStatus, field.TypeString, value)

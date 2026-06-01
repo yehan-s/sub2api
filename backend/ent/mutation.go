@@ -2294,6 +2294,9 @@ type AccountMutation struct {
 	addpriority               *int
 	rate_multiplier           *float64
 	addrate_multiplier        *float64
+	source                    *string
+	sync_source_id            *int64
+	addsync_source_id         *int64
 	status                    *string
 	error_message             *string
 	last_used_at              *time.Time
@@ -3055,6 +3058,112 @@ func (m *AccountMutation) AddedRateMultiplier() (r float64, exists bool) {
 func (m *AccountMutation) ResetRateMultiplier() {
 	m.rate_multiplier = nil
 	m.addrate_multiplier = nil
+}
+
+// SetSource sets the "source" field.
+func (m *AccountMutation) SetSource(s string) {
+	m.source = &s
+}
+
+// Source returns the value of the "source" field in the mutation.
+func (m *AccountMutation) Source() (r string, exists bool) {
+	v := m.source
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSource returns the old "source" field's value of the Account entity.
+// If the Account object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccountMutation) OldSource(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSource is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSource requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSource: %w", err)
+	}
+	return oldValue.Source, nil
+}
+
+// ResetSource resets all changes to the "source" field.
+func (m *AccountMutation) ResetSource() {
+	m.source = nil
+}
+
+// SetSyncSourceID sets the "sync_source_id" field.
+func (m *AccountMutation) SetSyncSourceID(i int64) {
+	m.sync_source_id = &i
+	m.addsync_source_id = nil
+}
+
+// SyncSourceID returns the value of the "sync_source_id" field in the mutation.
+func (m *AccountMutation) SyncSourceID() (r int64, exists bool) {
+	v := m.sync_source_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSyncSourceID returns the old "sync_source_id" field's value of the Account entity.
+// If the Account object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccountMutation) OldSyncSourceID(ctx context.Context) (v *int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSyncSourceID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSyncSourceID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSyncSourceID: %w", err)
+	}
+	return oldValue.SyncSourceID, nil
+}
+
+// AddSyncSourceID adds i to the "sync_source_id" field.
+func (m *AccountMutation) AddSyncSourceID(i int64) {
+	if m.addsync_source_id != nil {
+		*m.addsync_source_id += i
+	} else {
+		m.addsync_source_id = &i
+	}
+}
+
+// AddedSyncSourceID returns the value that was added to the "sync_source_id" field in this mutation.
+func (m *AccountMutation) AddedSyncSourceID() (r int64, exists bool) {
+	v := m.addsync_source_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearSyncSourceID clears the value of the "sync_source_id" field.
+func (m *AccountMutation) ClearSyncSourceID() {
+	m.sync_source_id = nil
+	m.addsync_source_id = nil
+	m.clearedFields[account.FieldSyncSourceID] = struct{}{}
+}
+
+// SyncSourceIDCleared returns if the "sync_source_id" field was cleared in this mutation.
+func (m *AccountMutation) SyncSourceIDCleared() bool {
+	_, ok := m.clearedFields[account.FieldSyncSourceID]
+	return ok
+}
+
+// ResetSyncSourceID resets all changes to the "sync_source_id" field.
+func (m *AccountMutation) ResetSyncSourceID() {
+	m.sync_source_id = nil
+	m.addsync_source_id = nil
+	delete(m.clearedFields, account.FieldSyncSourceID)
 }
 
 // SetStatus sets the "status" field.
@@ -3873,7 +3982,7 @@ func (m *AccountMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AccountMutation) Fields() []string {
-	fields := make([]string, 0, 28)
+	fields := make([]string, 0, 30)
 	if m.created_at != nil {
 		fields = append(fields, account.FieldCreatedAt)
 	}
@@ -3915,6 +4024,12 @@ func (m *AccountMutation) Fields() []string {
 	}
 	if m.rate_multiplier != nil {
 		fields = append(fields, account.FieldRateMultiplier)
+	}
+	if m.source != nil {
+		fields = append(fields, account.FieldSource)
+	}
+	if m.sync_source_id != nil {
+		fields = append(fields, account.FieldSyncSourceID)
 	}
 	if m.status != nil {
 		fields = append(fields, account.FieldStatus)
@@ -3994,6 +4109,10 @@ func (m *AccountMutation) Field(name string) (ent.Value, bool) {
 		return m.Priority()
 	case account.FieldRateMultiplier:
 		return m.RateMultiplier()
+	case account.FieldSource:
+		return m.Source()
+	case account.FieldSyncSourceID:
+		return m.SyncSourceID()
 	case account.FieldStatus:
 		return m.Status()
 	case account.FieldErrorMessage:
@@ -4059,6 +4178,10 @@ func (m *AccountMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldPriority(ctx)
 	case account.FieldRateMultiplier:
 		return m.OldRateMultiplier(ctx)
+	case account.FieldSource:
+		return m.OldSource(ctx)
+	case account.FieldSyncSourceID:
+		return m.OldSyncSourceID(ctx)
 	case account.FieldStatus:
 		return m.OldStatus(ctx)
 	case account.FieldErrorMessage:
@@ -4194,6 +4317,20 @@ func (m *AccountMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetRateMultiplier(v)
 		return nil
+	case account.FieldSource:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSource(v)
+		return nil
+	case account.FieldSyncSourceID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSyncSourceID(v)
+		return nil
 	case account.FieldStatus:
 		v, ok := value.(string)
 		if !ok {
@@ -4312,6 +4449,9 @@ func (m *AccountMutation) AddedFields() []string {
 	if m.addrate_multiplier != nil {
 		fields = append(fields, account.FieldRateMultiplier)
 	}
+	if m.addsync_source_id != nil {
+		fields = append(fields, account.FieldSyncSourceID)
+	}
 	return fields
 }
 
@@ -4328,6 +4468,8 @@ func (m *AccountMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedPriority()
 	case account.FieldRateMultiplier:
 		return m.AddedRateMultiplier()
+	case account.FieldSyncSourceID:
+		return m.AddedSyncSourceID()
 	}
 	return nil, false
 }
@@ -4365,6 +4507,13 @@ func (m *AccountMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddRateMultiplier(v)
 		return nil
+	case account.FieldSyncSourceID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSyncSourceID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Account numeric field %s", name)
 }
@@ -4384,6 +4533,9 @@ func (m *AccountMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(account.FieldLoadFactor) {
 		fields = append(fields, account.FieldLoadFactor)
+	}
+	if m.FieldCleared(account.FieldSyncSourceID) {
+		fields = append(fields, account.FieldSyncSourceID)
 	}
 	if m.FieldCleared(account.FieldErrorMessage) {
 		fields = append(fields, account.FieldErrorMessage)
@@ -4443,6 +4595,9 @@ func (m *AccountMutation) ClearField(name string) error {
 		return nil
 	case account.FieldLoadFactor:
 		m.ClearLoadFactor()
+		return nil
+	case account.FieldSyncSourceID:
+		m.ClearSyncSourceID()
 		return nil
 	case account.FieldErrorMessage:
 		m.ClearErrorMessage()
@@ -4526,6 +4681,12 @@ func (m *AccountMutation) ResetField(name string) error {
 		return nil
 	case account.FieldRateMultiplier:
 		m.ResetRateMultiplier()
+		return nil
+	case account.FieldSource:
+		m.ResetSource()
+		return nil
+	case account.FieldSyncSourceID:
+		m.ResetSyncSourceID()
 		return nil
 	case account.FieldStatus:
 		m.ResetStatus()

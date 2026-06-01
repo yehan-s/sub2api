@@ -110,6 +110,16 @@ func (Account) Fields() []ent.Field {
 			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).
 			Default(1.0),
 
+		// source: 账号来源。manual=后台手动添加；synced=从主站(生产)同步而来
+		field.String("source").
+			MaxLen(20).
+			Default("manual"),
+
+		// sync_source_id: 当 source=synced 时，记录该账号在生产库的原始账号 id，用于同步幂等匹配
+		field.Int64("sync_source_id").
+			Optional().
+			Nillable(),
+
 		// status: 账户状态，如 "active", "error", "disabled"
 		field.String("status").
 			MaxLen(20).
@@ -231,6 +241,8 @@ func (Account) Indexes() []ent.Index {
 		// 调度热路径复合索引（线上由 SQL 迁移创建部分索引，schema 仅用于模型可读性对齐）
 		index.Fields("platform", "priority"),
 		index.Fields("priority", "status"),
-		index.Fields("deleted_at"), // 软删除查询优化
+		index.Fields("deleted_at"),       // 软删除查询优化
+		index.Fields("source"),           // 按账号来源筛选
+		index.Fields("sync_source_id"),   // 按生产库原始 id 筛选（同步幂等匹配）
 	}
 }

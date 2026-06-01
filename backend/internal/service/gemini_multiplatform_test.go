@@ -71,6 +71,10 @@ func (m *mockAccountRepoForGemini) FindByExtraField(ctx context.Context, key str
 	return nil, nil
 }
 
+func (m *mockAccountRepoForGemini) ListSyncedSourceIDs(ctx context.Context) (map[int64]bool, error) {
+	return nil, nil
+}
+
 func (m *mockAccountRepoForGemini) ListCRSAccountIDs(ctx context.Context) (map[string]int64, error) {
 	return nil, nil
 }
@@ -182,6 +186,14 @@ func (m *mockAccountRepoForGemini) IncrementQuotaUsed(ctx context.Context, id in
 
 func (m *mockAccountRepoForGemini) ResetQuotaUsed(ctx context.Context, id int64) error {
 	return nil
+}
+
+func (m *mockAccountRepoForGemini) FindGroupByName(ctx context.Context, name string) (*Group, error) {
+	return nil, nil
+}
+
+func (m *mockAccountRepoForGemini) FindProxyByIdentity(ctx context.Context, protocol, host string, port int, username string) (*Proxy, error) {
+	return nil, nil
 }
 
 // Verify interface implementation

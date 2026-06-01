@@ -52,6 +52,12 @@ type Account struct {
 	SessionWindowEnd    *time.Time
 	SessionWindowStatus string
 
+	// Source 记录账号来源：manual（后台手动添加）或 synced（从生产站同步）。
+	// 对应 ent 字段 source，数据库默认值 "manual"。
+	Source string
+	// SyncSourceID 当 source=synced 时，记录该账号在生产库的原始 ID，用于幂等匹配。
+	SyncSourceID *int64
+
 	Proxy         *Proxy
 	AccountGroups []AccountGroup
 	GroupIDs      []int64

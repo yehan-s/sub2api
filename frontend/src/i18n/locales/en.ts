@@ -2965,6 +2965,7 @@ export default {
       listPendingSyncHint: 'List changes are pending sync. Click sync to load latest rows.',
       listPendingSyncAction: 'Sync now',
       syncFromCrs: 'Sync from CRS',
+      syncFromProd: 'Sync from Production',
       dataExport: 'Export',
       dataExportSelected: 'Export Selected',
       dataExportIncludeProxies: 'Include proxies linked to the exported accounts',
@@ -3024,6 +3025,24 @@ export default {
       crsUpdateBehaviorNote:
         'Existing accounts only sync fields returned by CRS; missing fields keep their current values. Credentials are merged by key — keys not returned by CRS are preserved. Proxies are kept when "Sync proxies" is unchecked.',
       crsBack: 'Back',
+      // Reseller "Sync from Production"
+      syncFromProdTitle: 'Sync Accounts from Production',
+      syncFromProdDesc:
+        'Read-only connect to the production site and add accounts (with their groups and proxies) that exist there but not here. Already-synced accounts are skipped.',
+      prodUpdateBehaviorNote:
+        'Add-only, never overwrite: existing accounts (matched by sync source ID) are skipped and your manual multipliers are untouched. New groups are created with the default markup and can be adjusted afterwards.',
+      prodPreviewing: 'Reading production accounts…',
+      prodPreviewFailed: 'Failed to read production accounts',
+      prodCandidates: 'Syncable accounts (selectable)',
+      prodNoCandidates: 'No new accounts to sync — all production accounts are already synced.',
+      prodSyncResultSummary:
+        'Created {created} accounts, {groups} groups, {proxies} proxies; skipped {skipped}; failed {failed}',
+      prodSyncCompleted:
+        'Sync complete: created {created} accounts, {groups} groups, {proxies} proxies; skipped {skipped}',
+      prodSyncCompletedWithErrors:
+        'Sync completed with errors: {failed} failed (created {created}, skipped {skipped})',
+      sourceSynced: 'Synced',
+      sourceManual: 'Manual',
       editAccount: 'Edit Account',
       deleteAccount: 'Delete Account',
       searchAccounts: 'Search accounts...',
@@ -3087,6 +3106,7 @@ export default {
       columns: {
         name: 'Name',
         platformType: 'Platform/Type',
+        source: 'Source',
         platform: 'Platform',
         type: 'Type',
         capacity: 'Capacity',

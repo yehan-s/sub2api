@@ -95,6 +95,15 @@ func (r *accountRepository) Create(ctx context.Context, account *service.Account
 		SetSchedulable(account.Schedulable).
 		SetAutoPauseOnExpired(account.AutoPauseOnExpired)
 
+	// 透传 source 字段；为空时 ent schema 会自动填充默认值 "manual"。
+	if account.Source != "" {
+		builder.SetSource(account.Source)
+	}
+	// sync_source_id 仅在显式指定时写入（nullable）。
+	if account.SyncSourceID != nil {
+		builder.SetSyncSourceID(*account.SyncSourceID)
+	}
+
 	if account.RateMultiplier != nil {
 		builder.SetRateMultiplier(*account.RateMultiplier)
 	}
@@ -283,6 +292,32 @@ func (r *accountRepository) GetByCRSAccountID(ctx context.Context, crsAccountID 
 		return nil, nil
 	}
 	return &accounts[0], nil
+}
+
+// ListSyncedSourceIDs 返回本地所有 source=synced 账号的 sync_source_id 集合，
+// 用于「从生产同步账号」的幂等去重。仅统计未软删除、且 sync_source_id 非空的行。
+func (r *accountRepository) ListSyncedSourceIDs(ctx context.Context) (map[int64]bool, error) {
+	rows, err := r.sql.QueryContext(ctx, `
+		SELECT sync_source_id
+		FROM accounts
+		WHERE deleted_at IS NULL
+			AND source = 'synced'
+			AND sync_source_id IS NOT NULL
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	result := make(map[int64]bool)
+	for rows.Next() {
+		var id int64
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		result[id] = true
+	}
+	return result, rows.Err()
 }
 
 func (r *accountRepository) ListCRSAccountIDs(ctx context.Context) (map[string]int64, error) {
@@ -1771,6 +1806,8 @@ func accountEntityToService(m *dbent.Account) *service.Account {
 		SessionWindowStart:      m.SessionWindowStart,
 		SessionWindowEnd:        m.SessionWindowEnd,
 		SessionWindowStatus:     derefString(m.SessionWindowStatus),
+		Source:                  m.Source,
+		SyncSourceID:            m.SyncSourceID,
 	}
 }
 
@@ -1805,6 +1842,46 @@ func joinClauses(clauses []string, sep string) string {
 
 func itoa(v int) string {
 	return strconv.Itoa(v)
+}
+
+// FindGroupByName 按名称查找未软删除的分组。不存在时返回 (nil, nil)。
+// groups.name 在 WHERE deleted_at IS NULL 上有部分唯一索引（migration 016），查询安全。
+func (r *accountRepository) FindGroupByName(ctx context.Context, name string) (*service.Group, error) {
+	m, err := r.client.Group.Query().
+		Where(
+			dbgroup.NameEQ(name),
+			dbgroup.DeletedAtIsNil(),
+		).
+		Only(ctx)
+	if err != nil {
+		if dbent.IsNotFound(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return groupEntityToService(m), nil
+}
+
+// FindProxyByIdentity 按连接身份元组（protocol/host/port/username）查找未软删除的代理。
+// 多命中时按 created_at DESC 取最新；不存在时返回 (nil, nil)。
+func (r *accountRepository) FindProxyByIdentity(ctx context.Context, protocol, host string, port int, username string) (*service.Proxy, error) {
+	m, err := r.client.Proxy.Query().
+		Where(
+			dbproxy.ProtocolEQ(protocol),
+			dbproxy.HostEQ(host),
+			dbproxy.PortEQ(port),
+			dbproxy.UsernameEQ(username),
+			dbproxy.DeletedAtIsNil(),
+		).
+		Order(dbent.Desc(dbproxy.FieldCreatedAt)).
+		First(ctx)
+	if err != nil {
+		if dbent.IsNotFound(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return proxyEntityToService(m), nil
 }
 
 // FindByExtraField 根据 extra 字段中的键值对查找账号。

@@ -544,6 +544,58 @@ export async function syncFromCrs(params: {
   return data
 }
 
+// ===== 分销站「从生产同步」=====
+
+export interface ProdSyncStatus {
+  enabled: boolean
+}
+
+export interface ProdPreviewAccount {
+  source_id: number
+  name: string
+  platform: string
+  type: string
+  groups: string[]
+  has_proxy: boolean
+}
+
+export interface PreviewFromProdResult {
+  candidates: ProdPreviewAccount[]
+}
+
+export interface ImportFromProdFailure {
+  source_id: number
+  reason: string
+}
+
+export interface ImportFromProdResult {
+  created_accounts: number
+  created_groups: number
+  created_proxies: number
+  skipped: number
+  failed: ImportFromProdFailure[]
+}
+
+// 查询分销同步总闸是否开启（控制「从生产同步」按钮显隐）
+export async function getProdSyncStatus(): Promise<ProdSyncStatus> {
+  const { data } = await apiClient.get<ProdSyncStatus>('/admin/accounts/sync/prod/status')
+  return data
+}
+
+// 预览「生产有、分销没有」的候选账号
+export async function previewFromProd(): Promise<PreviewFromProdResult> {
+  const { data } = await apiClient.post<PreviewFromProdResult>('/admin/accounts/sync/prod/preview')
+  return data
+}
+
+// 把选中的生产账号（含分组、代理）只新增到本地
+export async function syncFromProd(sourceIds: number[]): Promise<ImportFromProdResult> {
+  const { data } = await apiClient.post<ImportFromProdResult>('/admin/accounts/sync/prod', {
+    source_ids: sourceIds
+  })
+  return data
+}
+
 export async function exportData(options?: {
   ids?: number[]
   filters?: {
@@ -711,6 +763,9 @@ export const accountsAPI = {
   bulkUpdate,
   previewFromCrs,
   syncFromCrs,
+  getProdSyncStatus,
+  previewFromProd,
+  syncFromProd,
   exportData,
   importData,
   importCodexSession,

@@ -94,6 +94,7 @@ type Config struct {
 	Update                  UpdateConfig                  `mapstructure:"update"`
 	Idempotency             IdempotencyConfig             `mapstructure:"idempotency"`
 	SSO                     SSOConfig                     `mapstructure:"sso"`
+	ResellerSync            ResellerSyncConfig            `mapstructure:"reseller_sync"`
 }
 
 // SSOConfig 子产品单点登录配置（如画境工坊生图站换临时 key）。
@@ -102,6 +103,25 @@ type SSOConfig struct {
 	SharedSecret string `mapstructure:"shared_secret"`
 	// AllowedRedirects 允许的回跳地址白名单，逗号分隔，前缀匹配。
 	AllowedRedirects string `mapstructure:"allowed_redirects"`
+}
+
+// ResellerSyncConfig 分销站「从生产同步账号」配置。总闸 Enabled=false 时整套功能不存在。
+// 环境变量对应：RESELLER_SYNC_ENABLED / RESELLER_SYNC_SOURCE_DB_HOST /
+// RESELLER_SYNC_SOURCE_DB_PORT / RESELLER_SYNC_SOURCE_DB_NAME /
+// RESELLER_SYNC_SOURCE_DB_USER / RESELLER_SYNC_SOURCE_DB_PASSWORD
+type ResellerSyncConfig struct {
+	// Enabled 总开关；false 时同步功能完全不启动。
+	Enabled bool `mapstructure:"enabled"`
+	// SourceDBHost 生产（源）数据库主机。
+	SourceDBHost string `mapstructure:"source_db_host"`
+	// SourceDBPort 生产（源）数据库端口，默认 5432。
+	SourceDBPort int `mapstructure:"source_db_port"`
+	// SourceDBName 生产（源）数据库名，默认 sub2api。
+	SourceDBName string `mapstructure:"source_db_name"`
+	// SourceDBUser 只读账号用户名。
+	SourceDBUser string `mapstructure:"source_db_user"`
+	// SourceDBPass 只读账号密码。
+	SourceDBPass string `mapstructure:"source_db_password"`
 }
 
 type LogConfig struct {
@@ -1482,6 +1502,13 @@ func load(allowMissingJWTSecret bool) (*Config, error) {
 		cfg.JWT.Secret = ""
 	}
 
+	// 分销同步启用但关键连接参数缺失时发出警告（不 fatal，避免误配置锁死启动）
+	if cfg.ResellerSync.Enabled {
+		if cfg.ResellerSync.SourceDBHost == "" || cfg.ResellerSync.SourceDBUser == "" || cfg.ResellerSync.SourceDBPass == "" {
+			slog.Warn("reseller_sync.enabled=true 但 source_db_host/source_db_user/source_db_password 有字段为空，同步功能将无法连接源库")
+		}
+	}
+
 	if !cfg.Security.URLAllowlist.Enabled {
 		slog.Warn("security.url_allowlist.enabled=false; allowlist/SSRF checks disabled (minimal format validation only).")
 	}
@@ -1507,6 +1534,17 @@ func setDefaults() {
 	// 环境变量：SSO_SHARED_SECRET / SSO_ALLOWED_REDIRECTS
 	viper.SetDefault("sso.shared_secret", "")
 	viper.SetDefault("sso.allowed_redirects", "")
+
+	// 分销站账号同步（默认关闭）
+	// 环境变量：RESELLER_SYNC_ENABLED / RESELLER_SYNC_SOURCE_DB_HOST /
+	// RESELLER_SYNC_SOURCE_DB_PORT / RESELLER_SYNC_SOURCE_DB_NAME /
+	// RESELLER_SYNC_SOURCE_DB_USER / RESELLER_SYNC_SOURCE_DB_PASSWORD
+	viper.SetDefault("reseller_sync.enabled", false)
+	viper.SetDefault("reseller_sync.source_db_host", "")
+	viper.SetDefault("reseller_sync.source_db_port", 5432)
+	viper.SetDefault("reseller_sync.source_db_name", "sub2api")
+	viper.SetDefault("reseller_sync.source_db_user", "")
+	viper.SetDefault("reseller_sync.source_db_password", "")
 
 	viper.SetDefault("run_mode", RunModeStandard)
 

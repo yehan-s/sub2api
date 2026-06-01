@@ -73,6 +73,9 @@ func (m *sessionWindowMockRepo) GetByCRSAccountID(context.Context, string) (*Acc
 func (m *sessionWindowMockRepo) FindByExtraField(context.Context, string, any) ([]Account, error) {
 	panic("unexpected")
 }
+func (m *sessionWindowMockRepo) ListSyncedSourceIDs(context.Context) (map[int64]bool, error) {
+	return nil, nil
+}
 func (m *sessionWindowMockRepo) ListCRSAccountIDs(context.Context) (map[string]int64, error) {
 	panic("unexpected")
 }
@@ -153,6 +156,12 @@ func (m *sessionWindowMockRepo) IncrementQuotaUsed(context.Context, int64, float
 	panic("unexpected")
 }
 func (m *sessionWindowMockRepo) ResetQuotaUsed(context.Context, int64) error { panic("unexpected") }
+func (m *sessionWindowMockRepo) FindGroupByName(context.Context, string) (*Group, error) {
+	panic("unexpected")
+}
+func (m *sessionWindowMockRepo) FindProxyByIdentity(context.Context, string, string, int, string) (*Proxy, error) {
+	panic("unexpected")
+}
 
 // newRateLimitServiceForTest creates a RateLimitService with the given mock repo.
 func newRateLimitServiceForTest(repo AccountRepository) *RateLimitService {

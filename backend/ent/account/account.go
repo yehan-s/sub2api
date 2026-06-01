@@ -43,6 +43,10 @@ const (
 	FieldPriority = "priority"
 	// FieldRateMultiplier holds the string denoting the rate_multiplier field in the database.
 	FieldRateMultiplier = "rate_multiplier"
+	// FieldSource holds the string denoting the source field in the database.
+	FieldSource = "source"
+	// FieldSyncSourceID holds the string denoting the sync_source_id field in the database.
+	FieldSyncSourceID = "sync_source_id"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// FieldErrorMessage holds the string denoting the error_message field in the database.
@@ -126,6 +130,8 @@ var Columns = []string{
 	FieldLoadFactor,
 	FieldPriority,
 	FieldRateMultiplier,
+	FieldSource,
+	FieldSyncSourceID,
 	FieldStatus,
 	FieldErrorMessage,
 	FieldLastUsedAt,
@@ -188,6 +194,10 @@ var (
 	DefaultPriority int
 	// DefaultRateMultiplier holds the default value on creation for the "rate_multiplier" field.
 	DefaultRateMultiplier float64
+	// DefaultSource holds the default value on creation for the "source" field.
+	DefaultSource string
+	// SourceValidator is a validator for the "source" field. It is called by the builders before save.
+	SourceValidator func(string) error
 	// DefaultStatus holds the default value on creation for the "status" field.
 	DefaultStatus string
 	// StatusValidator is a validator for the "status" field. It is called by the builders before save.
@@ -266,6 +276,16 @@ func ByPriority(opts ...sql.OrderTermOption) OrderOption {
 // ByRateMultiplier orders the results by the rate_multiplier field.
 func ByRateMultiplier(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRateMultiplier, opts...).ToFunc()
+}
+
+// BySource orders the results by the source field.
+func BySource(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSource, opts...).ToFunc()
+}
+
+// BySyncSourceID orders the results by the sync_source_id field.
+func BySyncSourceID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSyncSourceID, opts...).ToFunc()
 }
 
 // ByStatus orders the results by the status field.

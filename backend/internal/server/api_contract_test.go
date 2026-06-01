@@ -1281,7 +1281,7 @@ func newContractDeps(t *testing.T) *contractDeps {
 	apiKeyHandler := handler.NewAPIKeyHandler(apiKeyService)
 	usageHandler := handler.NewUsageHandler(usageService, apiKeyService)
 	adminSettingHandler := adminhandler.NewSettingHandler(settingService, nil, nil, nil, nil, nil, nil)
-	adminAccountHandler := adminhandler.NewAccountHandler(adminService, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
+	adminAccountHandler := adminhandler.NewAccountHandler(adminService, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 
 	jwtAuth := func(c *gin.Context) {
 		c.Set(string(middleware.ContextKeyUser), middleware.AuthSubject{
@@ -1782,7 +1782,19 @@ func (s *stubAccountRepo) BulkUpdate(ctx context.Context, ids []int64, updates s
 	return int64(len(ids)), nil
 }
 
+func (s *stubAccountRepo) ListSyncedSourceIDs(ctx context.Context) (map[int64]bool, error) {
+	return nil, nil
+}
+
 func (s *stubAccountRepo) ListCRSAccountIDs(ctx context.Context) (map[string]int64, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (s *stubAccountRepo) FindGroupByName(ctx context.Context, name string) (*service.Group, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (s *stubAccountRepo) FindProxyByIdentity(ctx context.Context, protocol, host string, port int, username string) (*service.Proxy, error) {
 	return nil, errors.New("not implemented")
 }
 

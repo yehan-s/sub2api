@@ -157,6 +157,8 @@ type Account struct {
 	Notes    *string `json:"notes"`
 	Platform string  `json:"platform"`
 	Type     string  `json:"type"`
+	// Source 账号来源：manual（后台手动添加）或 synced（从生产站同步），供分销站「来源」列展示。
+	Source string `json:"source"`
 	// Credentials 经 RedactCredentials 处理后只含非敏感子键；敏感 token / api_key / 私钥
 	// 的存在性通过 CredentialsStatus（has_<key>）暴露，原始值不返回前端。
 	Credentials        map[string]any  `json:"credentials"`

@@ -206,6 +206,7 @@ func AccountFromServiceShallow(a *service.Account) *Account {
 		Notes:                   a.Notes,
 		Platform:                a.Platform,
 		Type:                    a.Type,
+		Source:                  a.Source,
 		Credentials:             redactedCreds,
 		CredentialsStatus:       credsStatus,
 		Extra:                   a.Extra,
