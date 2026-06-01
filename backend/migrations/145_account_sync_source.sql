@@ -7,8 +7,7 @@ ALTER TABLE accounts ADD COLUMN IF NOT EXISTS sync_source_id BIGINT;
 CREATE INDEX IF NOT EXISTS idx_accounts_source ON accounts(source);
 CREATE INDEX IF NOT EXISTS idx_accounts_sync_source_id ON accounts(sync_source_id);
 
--- 一次性回填：分销库当前账号全部来自生产整库导入(id 与生产一致)，标记为 synced 并自映射。
--- 仅对未软删除、尚未标记的行生效；若本环境已有本地手动新增账号，先人工甄别后再执行本段。
-UPDATE accounts
-SET source = 'synced', sync_source_id = id
-WHERE source = 'manual' AND sync_source_id IS NULL AND deleted_at IS NULL;
+-- 注意：此处不做任何回填。同一镜像的迁移会在生产与分销两边都执行，
+-- 若在此回填 source='synced' 会污染生产账号语义（生产账号本就是 manual）。
+-- 新增列默认即 'manual'，符合生产语义；分销站若由生产整库导入而来需把历史账号
+-- 标记为 synced，请在部署时只对【分销库】单独执行回填（见部署手册 T15）。
