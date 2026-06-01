@@ -82,6 +82,10 @@ func (m *mockAccountRepoForPlatform) FindByExtraField(ctx context.Context, key s
 	return nil, nil
 }
 
+func (m *mockAccountRepoForPlatform) ListSyncedSourceIDs(ctx context.Context) (map[int64]bool, error) {
+	return nil, nil
+}
+
 func (m *mockAccountRepoForPlatform) ListCRSAccountIDs(ctx context.Context) (map[string]int64, error) {
 	return nil, nil
 }

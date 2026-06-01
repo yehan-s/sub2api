@@ -294,6 +294,32 @@ func (r *accountRepository) GetByCRSAccountID(ctx context.Context, crsAccountID 
 	return &accounts[0], nil
 }
 
+// ListSyncedSourceIDs 返回本地所有 source=synced 账号的 sync_source_id 集合，
+// 用于「从生产同步账号」的幂等去重。仅统计未软删除、且 sync_source_id 非空的行。
+func (r *accountRepository) ListSyncedSourceIDs(ctx context.Context) (map[int64]bool, error) {
+	rows, err := r.sql.QueryContext(ctx, `
+		SELECT sync_source_id
+		FROM accounts
+		WHERE deleted_at IS NULL
+			AND source = 'synced'
+			AND sync_source_id IS NOT NULL
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	result := make(map[int64]bool)
+	for rows.Next() {
+		var id int64
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		result[id] = true
+	}
+	return result, rows.Err()
+}
+
 func (r *accountRepository) ListCRSAccountIDs(ctx context.Context) (map[string]int64, error) {
 	rows, err := r.sql.QueryContext(ctx, `
 		SELECT id, extra->>'crs_account_id'

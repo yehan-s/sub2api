@@ -1782,6 +1782,10 @@ func (s *stubAccountRepo) BulkUpdate(ctx context.Context, ids []int64, updates s
 	return int64(len(ids)), nil
 }
 
+func (s *stubAccountRepo) ListSyncedSourceIDs(ctx context.Context) (map[int64]bool, error) {
+	return nil, nil
+}
+
 func (s *stubAccountRepo) ListCRSAccountIDs(ctx context.Context) (map[string]int64, error) {
 	return nil, errors.New("not implemented")
 }

@@ -33,6 +33,10 @@ type AccountRepository interface {
 	// ListCRSAccountIDs returns a map of crs_account_id -> local account ID
 	// for all accounts that have been synced from CRS.
 	ListCRSAccountIDs(ctx context.Context) (map[string]int64, error)
+
+	// ListSyncedSourceIDs 返回本地所有 source=synced 账号的 sync_source_id 集合，
+	// 用于「从生产同步账号」的幂等去重（生产有、本地已同步过的不再重复导入）。
+	ListSyncedSourceIDs(ctx context.Context) (map[int64]bool, error)
 	Update(ctx context.Context, account *Account) error
 	Delete(ctx context.Context, id int64) error
 
