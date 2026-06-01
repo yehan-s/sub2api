@@ -153,6 +153,12 @@ func (m *sessionWindowMockRepo) IncrementQuotaUsed(context.Context, int64, float
 	panic("unexpected")
 }
 func (m *sessionWindowMockRepo) ResetQuotaUsed(context.Context, int64) error { panic("unexpected") }
+func (m *sessionWindowMockRepo) FindGroupByName(context.Context, string) (*Group, error) {
+	panic("unexpected")
+}
+func (m *sessionWindowMockRepo) FindProxyByIdentity(context.Context, string, string, int, string) (*Proxy, error) {
+	panic("unexpected")
+}
 
 // newRateLimitServiceForTest creates a RateLimitService with the given mock repo.
 func newRateLimitServiceForTest(repo AccountRepository) *RateLimitService {

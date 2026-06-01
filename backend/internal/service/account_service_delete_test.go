@@ -207,6 +207,14 @@ func (s *accountRepoStub) ResetQuotaUsed(ctx context.Context, id int64) error {
 	return nil
 }
 
+func (s *accountRepoStub) FindGroupByName(ctx context.Context, name string) (*Group, error) {
+	return nil, nil
+}
+
+func (s *accountRepoStub) FindProxyByIdentity(ctx context.Context, protocol, host string, port int, username string) (*Proxy, error) {
+	return nil, nil
+}
+
 // TestAccountService_Delete_NotFound 测试删除不存在的账号时返回正确的错误。
 // 预期行为：
 //   - ExistsByID 返回 false（账号不存在）

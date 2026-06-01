@@ -184,6 +184,14 @@ func (m *mockAccountRepoForGemini) ResetQuotaUsed(ctx context.Context, id int64)
 	return nil
 }
 
+func (m *mockAccountRepoForGemini) FindGroupByName(ctx context.Context, name string) (*Group, error) {
+	return nil, nil
+}
+
+func (m *mockAccountRepoForGemini) FindProxyByIdentity(ctx context.Context, protocol, host string, port int, username string) (*Proxy, error) {
+	return nil, nil
+}
+
 // Verify interface implementation
 var _ AccountRepository = (*mockAccountRepoForGemini)(nil)
 

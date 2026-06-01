@@ -195,6 +195,14 @@ func (m *mockAccountRepoForPlatform) ResetQuotaUsed(ctx context.Context, id int6
 	return nil
 }
 
+func (m *mockAccountRepoForPlatform) FindGroupByName(ctx context.Context, name string) (*Group, error) {
+	return nil, nil
+}
+
+func (m *mockAccountRepoForPlatform) FindProxyByIdentity(ctx context.Context, protocol, host string, port int, username string) (*Proxy, error) {
+	return nil, nil
+}
+
 // Verify interface implementation
 var _ AccountRepository = (*mockAccountRepoForPlatform)(nil)
 

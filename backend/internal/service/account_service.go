@@ -74,6 +74,12 @@ type AccountRepository interface {
 	IncrementQuotaUsed(ctx context.Context, id int64, amount float64) error
 	// ResetQuotaUsed 重置 API Key 账号所有维度的配额用量为 0
 	ResetQuotaUsed(ctx context.Context, id int64) error
+
+	// FindGroupByName 按名称查找未软删除的分组。不存在时返回 (nil, nil)。
+	FindGroupByName(ctx context.Context, name string) (*Group, error)
+	// FindProxyByIdentity 按连接身份元组（protocol/host/port/username）查找未软删除的代理。
+	// 多命中时按 created_at DESC 取最新；不存在时返回 (nil, nil)。
+	FindProxyByIdentity(ctx context.Context, protocol, host string, port int, username string) (*Proxy, error)
 }
 
 // AccountBulkUpdate describes the fields that can be updated in a bulk operation.

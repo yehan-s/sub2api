@@ -1786,6 +1786,14 @@ func (s *stubAccountRepo) ListCRSAccountIDs(ctx context.Context) (map[string]int
 	return nil, errors.New("not implemented")
 }
 
+func (s *stubAccountRepo) FindGroupByName(ctx context.Context, name string) (*service.Group, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (s *stubAccountRepo) FindProxyByIdentity(ctx context.Context, protocol, host string, port int, username string) (*service.Proxy, error) {
+	return nil, errors.New("not implemented")
+}
+
 type stubProxyRepo struct{}
 
 func (stubProxyRepo) Create(ctx context.Context, proxy *service.Proxy) error {
