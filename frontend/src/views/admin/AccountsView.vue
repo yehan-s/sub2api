@@ -92,6 +92,12 @@
                       </span>
                       <span class="flex-1 text-left">{{ t('admin.accounts.syncFromCrs') }}</span>
                     </button>
+                    <button v-if="prodSyncEnabled" class="account-tools-menu-item" @click="openSyncFromProd">
+                      <span class="account-tools-menu-icon bg-cyan-50 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-300">
+                        <Icon name="sync" size="sm" />
+                      </span>
+                      <span class="flex-1 text-left">{{ t('admin.accounts.syncFromProd') }}</span>
+                    </button>
                     <button class="account-tools-menu-item" @click="openImportData">
                       <span class="account-tools-menu-icon bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-300">
                         <Icon name="upload" size="sm" />
@@ -250,6 +256,16 @@
               </div>
             </div>
           </template>
+          <template #cell-source="{ row }">
+            <span
+              v-if="row.source === 'synced'"
+              class="inline-flex items-center rounded-md bg-cyan-100 px-2 py-0.5 text-xs font-medium text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300"
+            >{{ t('admin.accounts.sourceSynced') }}</span>
+            <span
+              v-else
+              class="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-dark-700 dark:text-dark-300"
+            >{{ t('admin.accounts.sourceManual') }}</span>
+          </template>
           <template #cell-capacity="{ row }">
             <AccountCapacityCell :account="row" />
           </template>
@@ -352,6 +368,7 @@
     <ScheduledTestsPanel :show="showSchedulePanel" :account-id="scheduleAcc?.id ?? null" :model-options="scheduleModelOptions" @close="closeSchedulePanel" />
     <AccountActionMenu :show="menu.show" :account="menu.acc" :position="menu.pos" @close="menu.show = false" @test="handleTest" @stats="handleViewStats" @schedule="handleSchedule" @reauth="handleReAuth" @refresh-token="handleRefresh" @recover-state="handleRecoverState" @reset-quota="handleResetQuota" @set-privacy="handleSetPrivacy" />
     <SyncFromCrsModal :show="showSync" @close="showSync = false" @synced="reload" />
+    <SyncFromProdModal :show="showSyncProd" @close="showSyncProd = false" @synced="reload" />
     <ImportDataModal :show="showImportData" @close="showImportData = false" @imported="handleDataImported" />
     <BulkEditAccountModal
       :show="showBulkEdit"
@@ -392,7 +409,7 @@ import TablePageLayout from '@/components/layout/TablePageLayout.vue'
 import DataTable from '@/components/common/DataTable.vue'
 import Pagination from '@/components/common/Pagination.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
-import { CreateAccountModal, EditAccountModal, BulkEditAccountModal, SyncFromCrsModal, TempUnschedStatusModal } from '@/components/account'
+import { CreateAccountModal, EditAccountModal, BulkEditAccountModal, SyncFromCrsModal, SyncFromProdModal, TempUnschedStatusModal } from '@/components/account'
 import AccountTableActions from '@/components/admin/account/AccountTableActions.vue'
 import AccountTableFilters from '@/components/admin/account/AccountTableFilters.vue'
 import AccountBulkActionsBar from '@/components/admin/account/AccountBulkActionsBar.vue'
@@ -466,6 +483,8 @@ const selTypes = computed<AccountType[]>(() => {
 const showCreate = ref(false)
 const showEdit = ref(false)
 const showSync = ref(false)
+const showSyncProd = ref(false)
+const prodSyncEnabled = ref(false) // 分销同步总闸（控制「从生产同步」按钮与「来源」列显隐）
 const showImportData = ref(false)
 const showExportDataDialog = ref(false)
 const includeProxyOnExport = ref(true)
@@ -846,6 +865,7 @@ const isAnyModalOpen = computed(() => {
     showCreate.value ||
     showEdit.value ||
     showSync.value ||
+    showSyncProd.value ||
     showImportData.value ||
     showExportDataDialog.value ||
     showBulkEdit.value ||
@@ -974,6 +994,11 @@ const closeAccountToolsDropdown = () => {
 const openSyncFromCrs = () => {
   closeAccountToolsDropdown()
   showSync.value = true
+}
+
+const openSyncFromProd = () => {
+  closeAccountToolsDropdown()
+  showSyncProd.value = true
 }
 
 const openImportData = () => {
@@ -1117,6 +1142,10 @@ const allColumns = computed(() => {
     { key: 'select', label: '', sortable: false },
     { key: 'name', label: t('admin.accounts.columns.name'), sortable: true },
     { key: 'platform_type', label: t('admin.accounts.columns.platformType'), sortable: false },
+    // 分销站专属：账号来源（主站同步 / 手动添加）
+    ...(prodSyncEnabled.value
+      ? [{ key: 'source', label: t('admin.accounts.columns.source'), sortable: false }]
+      : []),
     { key: 'capacity', label: t('admin.accounts.columns.capacity'), sortable: false },
     { key: 'status', label: t('admin.accounts.columns.status'), sortable: true },
     { key: 'schedulable', label: t('admin.accounts.columns.schedulable'), sortable: true },
@@ -1660,6 +1689,16 @@ onMounted(async () => {
   }
   window.addEventListener('scroll', handleScroll, true)
   document.addEventListener('click', handleClickOutside)
+
+  // 查询分销同步总闸；仅分销站(RESELLER_SYNC 开启)显示「从生产同步」按钮与「来源」列
+  adminAPI.accounts
+    .getProdSyncStatus()
+    .then((s) => {
+      prodSyncEnabled.value = s.enabled
+    })
+    .catch(() => {
+      prodSyncEnabled.value = false
+    })
 
   if (autoRefreshEnabled.value) {
     autoRefreshCountdown.value = autoRefreshIntervalSeconds.value
