@@ -37,6 +37,16 @@ func NewAccountSyncService(
 	}
 }
 
+// ProvideResellerSyncConfig 从全局配置取出分销同步子配置，供 wire 注入。
+func ProvideResellerSyncConfig(cfg *config.Config) config.ResellerSyncConfig {
+	return cfg.ResellerSync
+}
+
+// Enabled 返回分销同步总闸是否开启（供前端按钮显隐 status 接口使用）。
+func (s *AccountSyncService) Enabled() bool {
+	return s.cfg.Enabled
+}
+
 // SyncSourceAccount 从生产库读出的账号快照（仅含同步/预览所需信息）。
 type SyncSourceAccount struct {
 	ID         int64

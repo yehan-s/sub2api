@@ -55,6 +55,7 @@ type AccountHandler struct {
 	accountTestService      *service.AccountTestService
 	concurrencyService      *service.ConcurrencyService
 	crsSyncService          *service.CRSSyncService
+	accountSyncService      *service.AccountSyncService
 	sessionLimitCache       service.SessionLimitCache
 	rpmCache                service.RPMCache
 	tokenCacheInvalidator   service.TokenCacheInvalidator
@@ -72,6 +73,7 @@ func NewAccountHandler(
 	accountTestService *service.AccountTestService,
 	concurrencyService *service.ConcurrencyService,
 	crsSyncService *service.CRSSyncService,
+	accountSyncService *service.AccountSyncService,
 	sessionLimitCache service.SessionLimitCache,
 	rpmCache service.RPMCache,
 	tokenCacheInvalidator service.TokenCacheInvalidator,
@@ -87,6 +89,7 @@ func NewAccountHandler(
 		accountTestService:      accountTestService,
 		concurrencyService:      concurrencyService,
 		crsSyncService:          crsSyncService,
+		accountSyncService:      accountSyncService,
 		sessionLimitCache:       sessionLimitCache,
 		rpmCache:                rpmCache,
 		tokenCacheInvalidator:   tokenCacheInvalidator,
@@ -823,6 +826,45 @@ func (h *AccountHandler) PreviewFromCRS(c *gin.Context) {
 		return
 	}
 
+	response.Success(c, result)
+}
+
+// SyncProdStatus 返回分销同步总闸是否开启，供前端控制「从生产同步」按钮显隐。
+// GET /api/v1/admin/accounts/sync/prod/status
+func (h *AccountHandler) SyncProdStatus(c *gin.Context) {
+	response.Success(c, gin.H{"enabled": h.accountSyncService.Enabled()})
+}
+
+// PreviewFromProd 只读连接生产库，返回「生产有、分销没有」的候选账号供勾选。
+// POST /api/v1/admin/accounts/sync/prod/preview
+func (h *AccountHandler) PreviewFromProd(c *gin.Context) {
+	result, err := h.accountSyncService.Preview(c.Request.Context())
+	if err != nil {
+		response.InternalError(c, "从生产预览失败: "+err.Error())
+		return
+	}
+	response.Success(c, result)
+}
+
+// SyncFromProdRequest 是「从生产同步」导入请求体。
+type SyncFromProdRequest struct {
+	SourceIDs []int64 `json:"source_ids" binding:"required"`
+}
+
+// SyncFromProd 把选中的生产账号（含分组、代理）只新增到本地。
+// POST /api/v1/admin/accounts/sync/prod
+func (h *AccountHandler) SyncFromProd(c *gin.Context) {
+	var req SyncFromProdRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, "Invalid request: "+err.Error())
+		return
+	}
+
+	result, err := h.accountSyncService.Import(c.Request.Context(), req.SourceIDs)
+	if err != nil {
+		response.InternalError(c, "从生产同步失败: "+err.Error())
+		return
+	}
 	response.Success(c, result)
 }
 
