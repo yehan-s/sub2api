@@ -463,3 +463,7 @@ func SettingKeyAuthSourcePlatformQuotas(source string) string {
 
 // AdminAPIKeyPrefix is the prefix for admin API keys (distinct from user "sk-" keys).
 const AdminAPIKeyPrefix = "admin-"
+
+// SettingKeySyncDefaultMarkup 分销同步：新建分组时套用的默认加价系数（浮点字符串）。
+// 后台可通过通用 setting 写入接口修改；缺省回退到环境变量 SYNC_DEFAULT_MARKUP 或 1.5。
+const SettingKeySyncDefaultMarkup = "sync.default_markup"
