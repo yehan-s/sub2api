@@ -181,6 +181,34 @@ func (_c *AccountCreate) SetNillableRateMultiplier(v *float64) *AccountCreate {
 	return _c
 }
 
+// SetSource sets the "source" field.
+func (_c *AccountCreate) SetSource(v string) *AccountCreate {
+	_c.mutation.SetSource(v)
+	return _c
+}
+
+// SetNillableSource sets the "source" field if the given value is not nil.
+func (_c *AccountCreate) SetNillableSource(v *string) *AccountCreate {
+	if v != nil {
+		_c.SetSource(*v)
+	}
+	return _c
+}
+
+// SetSyncSourceID sets the "sync_source_id" field.
+func (_c *AccountCreate) SetSyncSourceID(v int64) *AccountCreate {
+	_c.mutation.SetSyncSourceID(v)
+	return _c
+}
+
+// SetNillableSyncSourceID sets the "sync_source_id" field if the given value is not nil.
+func (_c *AccountCreate) SetNillableSyncSourceID(v *int64) *AccountCreate {
+	if v != nil {
+		_c.SetSyncSourceID(*v)
+	}
+	return _c
+}
+
 // SetStatus sets the "status" field.
 func (_c *AccountCreate) SetStatus(v string) *AccountCreate {
 	_c.mutation.SetStatus(v)
@@ -489,6 +517,10 @@ func (_c *AccountCreate) defaults() error {
 		v := account.DefaultRateMultiplier
 		_c.mutation.SetRateMultiplier(v)
 	}
+	if _, ok := _c.mutation.Source(); !ok {
+		v := account.DefaultSource
+		_c.mutation.SetSource(v)
+	}
 	if _, ok := _c.mutation.Status(); !ok {
 		v := account.DefaultStatus
 		_c.mutation.SetStatus(v)
@@ -550,6 +582,14 @@ func (_c *AccountCreate) check() error {
 	}
 	if _, ok := _c.mutation.RateMultiplier(); !ok {
 		return &ValidationError{Name: "rate_multiplier", err: errors.New(`ent: missing required field "Account.rate_multiplier"`)}
+	}
+	if _, ok := _c.mutation.Source(); !ok {
+		return &ValidationError{Name: "source", err: errors.New(`ent: missing required field "Account.source"`)}
+	}
+	if v, ok := _c.mutation.Source(); ok {
+		if err := account.SourceValidator(v); err != nil {
+			return &ValidationError{Name: "source", err: fmt.Errorf(`ent: validator failed for field "Account.source": %w`, err)}
+		}
 	}
 	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Account.status"`)}
@@ -648,6 +688,14 @@ func (_c *AccountCreate) createSpec() (*Account, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.RateMultiplier(); ok {
 		_spec.SetField(account.FieldRateMultiplier, field.TypeFloat64, value)
 		_node.RateMultiplier = value
+	}
+	if value, ok := _c.mutation.Source(); ok {
+		_spec.SetField(account.FieldSource, field.TypeString, value)
+		_node.Source = value
+	}
+	if value, ok := _c.mutation.SyncSourceID(); ok {
+		_spec.SetField(account.FieldSyncSourceID, field.TypeInt64, value)
+		_node.SyncSourceID = &value
 	}
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(account.FieldStatus, field.TypeString, value)
@@ -1011,6 +1059,42 @@ func (u *AccountUpsert) UpdateRateMultiplier() *AccountUpsert {
 // AddRateMultiplier adds v to the "rate_multiplier" field.
 func (u *AccountUpsert) AddRateMultiplier(v float64) *AccountUpsert {
 	u.Add(account.FieldRateMultiplier, v)
+	return u
+}
+
+// SetSource sets the "source" field.
+func (u *AccountUpsert) SetSource(v string) *AccountUpsert {
+	u.Set(account.FieldSource, v)
+	return u
+}
+
+// UpdateSource sets the "source" field to the value that was provided on create.
+func (u *AccountUpsert) UpdateSource() *AccountUpsert {
+	u.SetExcluded(account.FieldSource)
+	return u
+}
+
+// SetSyncSourceID sets the "sync_source_id" field.
+func (u *AccountUpsert) SetSyncSourceID(v int64) *AccountUpsert {
+	u.Set(account.FieldSyncSourceID, v)
+	return u
+}
+
+// UpdateSyncSourceID sets the "sync_source_id" field to the value that was provided on create.
+func (u *AccountUpsert) UpdateSyncSourceID() *AccountUpsert {
+	u.SetExcluded(account.FieldSyncSourceID)
+	return u
+}
+
+// AddSyncSourceID adds v to the "sync_source_id" field.
+func (u *AccountUpsert) AddSyncSourceID(v int64) *AccountUpsert {
+	u.Add(account.FieldSyncSourceID, v)
+	return u
+}
+
+// ClearSyncSourceID clears the value of the "sync_source_id" field.
+func (u *AccountUpsert) ClearSyncSourceID() *AccountUpsert {
+	u.SetNull(account.FieldSyncSourceID)
 	return u
 }
 
@@ -1528,6 +1612,48 @@ func (u *AccountUpsertOne) AddRateMultiplier(v float64) *AccountUpsertOne {
 func (u *AccountUpsertOne) UpdateRateMultiplier() *AccountUpsertOne {
 	return u.Update(func(s *AccountUpsert) {
 		s.UpdateRateMultiplier()
+	})
+}
+
+// SetSource sets the "source" field.
+func (u *AccountUpsertOne) SetSource(v string) *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.SetSource(v)
+	})
+}
+
+// UpdateSource sets the "source" field to the value that was provided on create.
+func (u *AccountUpsertOne) UpdateSource() *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.UpdateSource()
+	})
+}
+
+// SetSyncSourceID sets the "sync_source_id" field.
+func (u *AccountUpsertOne) SetSyncSourceID(v int64) *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.SetSyncSourceID(v)
+	})
+}
+
+// AddSyncSourceID adds v to the "sync_source_id" field.
+func (u *AccountUpsertOne) AddSyncSourceID(v int64) *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.AddSyncSourceID(v)
+	})
+}
+
+// UpdateSyncSourceID sets the "sync_source_id" field to the value that was provided on create.
+func (u *AccountUpsertOne) UpdateSyncSourceID() *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.UpdateSyncSourceID()
+	})
+}
+
+// ClearSyncSourceID clears the value of the "sync_source_id" field.
+func (u *AccountUpsertOne) ClearSyncSourceID() *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.ClearSyncSourceID()
 	})
 }
 
@@ -2250,6 +2376,48 @@ func (u *AccountUpsertBulk) AddRateMultiplier(v float64) *AccountUpsertBulk {
 func (u *AccountUpsertBulk) UpdateRateMultiplier() *AccountUpsertBulk {
 	return u.Update(func(s *AccountUpsert) {
 		s.UpdateRateMultiplier()
+	})
+}
+
+// SetSource sets the "source" field.
+func (u *AccountUpsertBulk) SetSource(v string) *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.SetSource(v)
+	})
+}
+
+// UpdateSource sets the "source" field to the value that was provided on create.
+func (u *AccountUpsertBulk) UpdateSource() *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.UpdateSource()
+	})
+}
+
+// SetSyncSourceID sets the "sync_source_id" field.
+func (u *AccountUpsertBulk) SetSyncSourceID(v int64) *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.SetSyncSourceID(v)
+	})
+}
+
+// AddSyncSourceID adds v to the "sync_source_id" field.
+func (u *AccountUpsertBulk) AddSyncSourceID(v int64) *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.AddSyncSourceID(v)
+	})
+}
+
+// UpdateSyncSourceID sets the "sync_source_id" field to the value that was provided on create.
+func (u *AccountUpsertBulk) UpdateSyncSourceID() *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.UpdateSyncSourceID()
+	})
+}
+
+// ClearSyncSourceID clears the value of the "sync_source_id" field.
+func (u *AccountUpsertBulk) ClearSyncSourceID() *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.ClearSyncSourceID()
 	})
 }
 

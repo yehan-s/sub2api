@@ -115,6 +115,16 @@ func RateMultiplier(v float64) predicate.Account {
 	return predicate.Account(sql.FieldEQ(FieldRateMultiplier, v))
 }
 
+// Source applies equality check predicate on the "source" field. It's identical to SourceEQ.
+func Source(v string) predicate.Account {
+	return predicate.Account(sql.FieldEQ(FieldSource, v))
+}
+
+// SyncSourceID applies equality check predicate on the "sync_source_id" field. It's identical to SyncSourceIDEQ.
+func SyncSourceID(v int64) predicate.Account {
+	return predicate.Account(sql.FieldEQ(FieldSyncSourceID, v))
+}
+
 // Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
 func Status(v string) predicate.Account {
 	return predicate.Account(sql.FieldEQ(FieldStatus, v))
@@ -783,6 +793,121 @@ func RateMultiplierLT(v float64) predicate.Account {
 // RateMultiplierLTE applies the LTE predicate on the "rate_multiplier" field.
 func RateMultiplierLTE(v float64) predicate.Account {
 	return predicate.Account(sql.FieldLTE(FieldRateMultiplier, v))
+}
+
+// SourceEQ applies the EQ predicate on the "source" field.
+func SourceEQ(v string) predicate.Account {
+	return predicate.Account(sql.FieldEQ(FieldSource, v))
+}
+
+// SourceNEQ applies the NEQ predicate on the "source" field.
+func SourceNEQ(v string) predicate.Account {
+	return predicate.Account(sql.FieldNEQ(FieldSource, v))
+}
+
+// SourceIn applies the In predicate on the "source" field.
+func SourceIn(vs ...string) predicate.Account {
+	return predicate.Account(sql.FieldIn(FieldSource, vs...))
+}
+
+// SourceNotIn applies the NotIn predicate on the "source" field.
+func SourceNotIn(vs ...string) predicate.Account {
+	return predicate.Account(sql.FieldNotIn(FieldSource, vs...))
+}
+
+// SourceGT applies the GT predicate on the "source" field.
+func SourceGT(v string) predicate.Account {
+	return predicate.Account(sql.FieldGT(FieldSource, v))
+}
+
+// SourceGTE applies the GTE predicate on the "source" field.
+func SourceGTE(v string) predicate.Account {
+	return predicate.Account(sql.FieldGTE(FieldSource, v))
+}
+
+// SourceLT applies the LT predicate on the "source" field.
+func SourceLT(v string) predicate.Account {
+	return predicate.Account(sql.FieldLT(FieldSource, v))
+}
+
+// SourceLTE applies the LTE predicate on the "source" field.
+func SourceLTE(v string) predicate.Account {
+	return predicate.Account(sql.FieldLTE(FieldSource, v))
+}
+
+// SourceContains applies the Contains predicate on the "source" field.
+func SourceContains(v string) predicate.Account {
+	return predicate.Account(sql.FieldContains(FieldSource, v))
+}
+
+// SourceHasPrefix applies the HasPrefix predicate on the "source" field.
+func SourceHasPrefix(v string) predicate.Account {
+	return predicate.Account(sql.FieldHasPrefix(FieldSource, v))
+}
+
+// SourceHasSuffix applies the HasSuffix predicate on the "source" field.
+func SourceHasSuffix(v string) predicate.Account {
+	return predicate.Account(sql.FieldHasSuffix(FieldSource, v))
+}
+
+// SourceEqualFold applies the EqualFold predicate on the "source" field.
+func SourceEqualFold(v string) predicate.Account {
+	return predicate.Account(sql.FieldEqualFold(FieldSource, v))
+}
+
+// SourceContainsFold applies the ContainsFold predicate on the "source" field.
+func SourceContainsFold(v string) predicate.Account {
+	return predicate.Account(sql.FieldContainsFold(FieldSource, v))
+}
+
+// SyncSourceIDEQ applies the EQ predicate on the "sync_source_id" field.
+func SyncSourceIDEQ(v int64) predicate.Account {
+	return predicate.Account(sql.FieldEQ(FieldSyncSourceID, v))
+}
+
+// SyncSourceIDNEQ applies the NEQ predicate on the "sync_source_id" field.
+func SyncSourceIDNEQ(v int64) predicate.Account {
+	return predicate.Account(sql.FieldNEQ(FieldSyncSourceID, v))
+}
+
+// SyncSourceIDIn applies the In predicate on the "sync_source_id" field.
+func SyncSourceIDIn(vs ...int64) predicate.Account {
+	return predicate.Account(sql.FieldIn(FieldSyncSourceID, vs...))
+}
+
+// SyncSourceIDNotIn applies the NotIn predicate on the "sync_source_id" field.
+func SyncSourceIDNotIn(vs ...int64) predicate.Account {
+	return predicate.Account(sql.FieldNotIn(FieldSyncSourceID, vs...))
+}
+
+// SyncSourceIDGT applies the GT predicate on the "sync_source_id" field.
+func SyncSourceIDGT(v int64) predicate.Account {
+	return predicate.Account(sql.FieldGT(FieldSyncSourceID, v))
+}
+
+// SyncSourceIDGTE applies the GTE predicate on the "sync_source_id" field.
+func SyncSourceIDGTE(v int64) predicate.Account {
+	return predicate.Account(sql.FieldGTE(FieldSyncSourceID, v))
+}
+
+// SyncSourceIDLT applies the LT predicate on the "sync_source_id" field.
+func SyncSourceIDLT(v int64) predicate.Account {
+	return predicate.Account(sql.FieldLT(FieldSyncSourceID, v))
+}
+
+// SyncSourceIDLTE applies the LTE predicate on the "sync_source_id" field.
+func SyncSourceIDLTE(v int64) predicate.Account {
+	return predicate.Account(sql.FieldLTE(FieldSyncSourceID, v))
+}
+
+// SyncSourceIDIsNil applies the IsNil predicate on the "sync_source_id" field.
+func SyncSourceIDIsNil() predicate.Account {
+	return predicate.Account(sql.FieldIsNull(FieldSyncSourceID))
+}
+
+// SyncSourceIDNotNil applies the NotNil predicate on the "sync_source_id" field.
+func SyncSourceIDNotNil() predicate.Account {
+	return predicate.Account(sql.FieldNotNull(FieldSyncSourceID))
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.
