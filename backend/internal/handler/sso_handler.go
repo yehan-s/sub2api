@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/subtle"
 	"encoding/hex"
@@ -12,6 +13,7 @@ import (
 	"time"
 
 	"github.com/Wei-Shaw/sub2api/internal/config"
+	"github.com/Wei-Shaw/sub2api/internal/pkg/pagination"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/response"
 	middleware2 "github.com/Wei-Shaw/sub2api/internal/server/middleware"
 	"github.com/Wei-Shaw/sub2api/internal/service"
@@ -25,6 +27,8 @@ const (
 	ssoCodeTTL = 5 * time.Minute
 	// SSO 临时 key 的有效期（会话级、可回收），不是 1 小时
 	ssoTempKeyDays = 30
+	// SSO 临时 key 的名称：每次登录重签，签新前先按此名回收旧的，避免在 api_keys 表堆积。
+	ssoTempKeyName = "studio-sso"
 	// Redis 中授权码的键前缀
 	ssoCodeRedisPrefix = "sso:code:"
 )
@@ -188,11 +192,15 @@ func (h *SSOHandler) Token(c *gin.Context) {
 		return
 	}
 
+	// 签新临时 key 前，先回收该用户此前签发的临时 key。
+	// 临时 key 每次登录都重签（绑定当次所选分组），旧的不回收会逐次堆积成孤儿。
+	h.revokePreviousTempKeys(ctx, userID)
+
 	days := ssoTempKeyDays
 	// 临时 key 绑定用户选定的生图分组（GroupID 为空则用默认分组）。
 	// Create 内部会校验该用户是否有权绑定该分组，无权则返回错误。
 	apiKey, err := h.apiKeyService.Create(ctx, userID, service.CreateAPIKeyRequest{
-		Name:          "studio-sso",
+		Name:          ssoTempKeyName,
 		Quota:         0, // 0 = 共享用户余额，扣的是用户自己的额度
 		ExpiresInDays: &days,
 		GroupID:       cp.GroupID,
@@ -213,6 +221,34 @@ func (h *SSOHandler) Token(c *gin.Context) {
 			"username": user.Username,
 		},
 	})
+}
+
+// revokePreviousTempKeys 回收该用户此前签发的 SSO 临时 key（名为 ssoTempKeyName）。
+// 不阻断登录：清理是尽力而为，签发新 key 才是主流程，故忽略错误。
+// 逐个走 service.Delete 而非批量删，是为了顺带清掉每把 key 的认证缓存。
+// 分页循环兜底已被污染（历史堆积多把）的存量用户，每轮删一批直到清空。
+func (h *SSOHandler) revokePreviousTempKeys(ctx context.Context, userID int64) {
+	params := pagination.PaginationParams{Page: 1, PageSize: 1000, SortBy: "created_at", SortOrder: "asc"}
+	for iter := 0; iter < 50; iter++ {
+		// Search 命中 Name/Key 子串；下面再按精确 Name 过滤，避免误删用户自建的 key。
+		keys, _, err := h.apiKeyService.List(ctx, userID, params, service.APIKeyListFilters{Search: ssoTempKeyName})
+		if err != nil {
+			return
+		}
+		deleted := 0
+		for i := range keys {
+			if keys[i].Name != ssoTempKeyName {
+				continue
+			}
+			if err := h.apiKeyService.Delete(ctx, keys[i].ID, userID); err == nil {
+				deleted++
+			}
+		}
+		// 本轮没删掉任何精确同名 key：要么已清空，要么剩下的都删不动，停止避免空转。
+		if deleted == 0 {
+			return
+		}
+	}
 }
 
 // isAllowedRedirect 校验回跳地址是否在白名单内（逗号分隔，前缀匹配到具体回调路径）。
