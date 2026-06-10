@@ -467,3 +467,7 @@ const AdminAPIKeyPrefix = "admin-"
 // SettingKeySyncDefaultMarkup 分销同步：新建分组时套用的默认加价系数（浮点字符串）。
 // 后台可通过通用 setting 写入接口修改；缺省回退到环境变量 SYNC_DEFAULT_MARKUP 或 1.5。
 const SettingKeySyncDefaultMarkup = "sync.default_markup"
+
+// SettingKeyAllowUserViewErrorRequests controls whether end users can view
+// their own failed requests on the usage page. Default false (opt-in).
+const SettingKeyAllowUserViewErrorRequests = "allow_user_view_error_requests"
